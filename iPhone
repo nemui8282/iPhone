@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhoneデバッグ用</title>
+</head>
+<body>
+  <h1>加速度センサーのテスト</h1>
+  <button id="permissionButton">加速度センサーを許可</button>
+  <div id="status">センサーの状態を表示します...</div>
+
+  <script>
+    const statusDiv = document.getElementById('status');
+    const permissionButton = document.getElementById('permissionButton');
+
+    // センサー許可リクエスト
+    permissionButton.addEventListener('click', async () => {
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceMotionEvent.requestPermission();
+          if (permission === 'granted') {
+            statusDiv.textContent = 'センサーが許可されました！動作を確認してください。';
+            startDeviceMotionListener();
+          } else {
+            statusDiv.textContent = 'センサーの使用が許可されませんでした。';
+          }
+        } catch (error) {
+          statusDiv.textContent = `センサー許可中にエラー: ${error.message}`;
+        }
+      } else {
+        statusDiv.textContent = 'このデバイスではセンサー許可が不要です。センサーを開始します。';
+        startDeviceMotionListener();
+      }
+    });
+
+    // 加速度センサーのデータを取得
+    function startDeviceMotionListener() {
+      window.addEventListener('devicemotion', (event) => {
+        const { x, y, z } = event.acceleration;
+        if (x !== null && y !== null && z !== null) {
+          statusDiv.textContent = `加速度センサーのデータ - X: ${x}, Y: ${y}, Z: ${z}`;
+        } else {
+          statusDiv.textContent = 'センサーからデータが取得できません。';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
